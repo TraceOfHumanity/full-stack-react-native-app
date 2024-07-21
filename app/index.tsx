@@ -10,7 +10,10 @@ import beachImage from "@/assets/meditation-images/beach.webp";
 import {LinearGradient} from "expo-linear-gradient";
 import {StatusBar} from "expo-status-bar";
 import CustomButton from "@/components/CustomButton";
+import { useRouter } from "expo-router";
+
 const App = () => {
+  const router = useRouter();
   return (
     <View className="flex-1 ">
       <ImageBackground
@@ -33,7 +36,7 @@ const App = () => {
             </View>
             <View>
               <CustomButton
-                onPress={() => console.log("tap")}
+                onPress={() => router.push("/nature-meditation")}
                 title="Get Started"
               />
             </View>
