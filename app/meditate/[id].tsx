@@ -5,12 +5,16 @@ import AppGradient from "@/components/AppGradient";
 import {router, useLocalSearchParams} from "expo-router";
 import {AntDesign} from "@expo/vector-icons";
 import CustomButton from "@/components/CustomButton";
+import {Audio} from "expo-av";
+import {MEDITATION_DATA, AUDIO_FILES} from "@/constants/MeditationData";
 
 const Meditate = () => {
   const {id} = useLocalSearchParams();
 
   const [secondsRemaining, setSecondsRemaining] = useState(10);
   const [isMeditating, setMeditating] = useState(false);
+  const [audioSound, setSound] = useState<Audio.Sound>();
+  const [isPlayingAudio, setPlayingAudio] = useState(false);
 
   useEffect(() => {
     let timerId: NodeJS.Timeout;
@@ -29,6 +33,45 @@ const Meditate = () => {
     return () => clearTimeout(timerId);
   }, [secondsRemaining, isMeditating]);
 
+  useEffect(() => {
+    return () => {
+      audioSound?.unloadAsync();
+    }
+  }, [audioSound]);
+  
+
+  const toggleMeditationSessionStatus = async () => {
+    if (secondsRemaining === 0) {
+      setSecondsRemaining(10);
+    }
+    setMeditating(!isMeditating);
+
+    await toggleSound();
+  };
+
+  const toggleSound = async () => {
+    const sound = audioSound ? audioSound : await initializeSound();
+
+    const status = await sound?.getStatusAsync();
+
+    if (status?.isLoaded && !isPlayingAudio) {
+      await sound?.playAsync();
+      setPlayingAudio(true);
+    } else {
+      await sound?.pauseAsync();
+      setPlayingAudio(false);
+    }
+  };
+
+  const initializeSound = async () => {
+    const audioFileName = MEDITATION_DATA[Number(id) - 1].audio;
+
+    const {sound} = await Audio.Sound.createAsync(AUDIO_FILES[audioFileName]);
+
+    setSound(sound);
+    return sound;
+  };
+
   const formattedTimeMinutes = String(
     Math.floor(secondsRemaining / 60)
   ).padStart(2, "0");
@@ -44,7 +87,7 @@ const Meditate = () => {
         <AppGradient colors={["transparent", "#000000aa"]}>
           <Pressable
             onPress={() => router.back()}
-            className="absolute top-16 -z-10 left-8"
+            className="absolute top-16 z-10 left-8"
           >
             <AntDesign name="leftcircleo" size={50} color="white" />
           </Pressable>
@@ -58,7 +101,7 @@ const Meditate = () => {
           <View className="mb-5">
             <CustomButton
               title="Start Meditation"
-              onPress={() => setMeditating(true)}
+              onPress={toggleMeditationSessionStatus}
             />
           </View>
         </AppGradient>
