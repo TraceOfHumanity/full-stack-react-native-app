@@ -29,6 +29,11 @@ const Meditate = () => {
     return () => clearTimeout(timerId);
   }, [secondsRemaining, isMeditating]);
 
+  const formattedTimeMinutes = String(
+    Math.floor(secondsRemaining / 60)
+  ).padStart(2, "0");
+  const formattedTimeSeconds = String(secondsRemaining % 60).padStart(2, "0");
+
   return (
     <View className="flex-1">
       <ImageBackground
@@ -45,8 +50,8 @@ const Meditate = () => {
           </Pressable>
           <View className="flex-1 justify-center">
             <View className="mx-auto bg-neutral-200 rounded-full w-44 h-44 justify-center items-center">
-              <Text className="text-4xl text-blue-800">
-                00:{secondsRemaining}
+              <Text className="text-4xl text-blue-800 font-rmono">
+                {formattedTimeMinutes}:{formattedTimeSeconds}
               </Text>
             </View>
           </View>
